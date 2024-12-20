@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스타트 화면</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            flex-direction: column;
+            height: 100vh; 
+            background: rgb(20, 20, 20); /* 기본 배경 */
+        }
+        canvas { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            z-index: 0; /* 배경으로 설정 */
+        }
+        img {
+            max-width: 300px; /* 로고 사이즈 조정 */
+            height: auto; 
+            z-index: 1; /* 로고가 캔버스 위에 보이게 설정 */
+        }
+        .click-message {
+            color: silver; /* 글자 색상 */
+            font-size: 16px; /* 글자 크기 줄임 */
+            z-index: 1; /* 캔버스 위에 보이게 설정 */
+        }
+    </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.130.0/build/three.module.js",
+            "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.130.0/examples/jsm/loaders/GLTFLoader.js"
+        }
+    }
+    </script>
+</head>
+<body>
+    <img src="source/logo.png" alt="로고" />
+    <div class="click-message">click</div>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+        import * as THREE from 'three';
+
+        // 씬 설정
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 파도 효과를 위한 셰이더
+        const waveShader = {
+            uniforms: {
+                time: { value: 0 },
+                resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                clickPosition: { value: new THREE.Vector2(0.5, 0.5) }, // 클릭 위치를 위한 유니폼
+                rippleRadius: { value: 0 } // 리플 반경
+            },
+            vertexShader: `
+                varying vec2 vUv;
+
+                void main() {
+                    vUv = uv;
+                    gl_Position = vec4(position.x, position.y, 0.0, 1.0); // z축을 0으로 고정하여 2D 효과
+                }
+            `,
+            fragmentShader: `
+                uniform float time;
+                varying vec2 vUv;
+                uniform vec2 clickPosition; // 클릭 위치
+                uniform float rippleRadius; // 리플 반경
+
+                void main() {
+                    vec2 uv = vUv;
+
+                    // 먹물 효과
+                    float wave = sin(uv.x * 10.0 + time) * 0.7; // 파도 높이 조정
+                    uv.y += wave;
+
+                    // 클릭 위치에서의 리플 효과
+                    float dist = distance(uv, clickPosition);
+                    float rippleEffect = smoothstep(rippleRadius, rippleRadius + 0.05, dist); // 리플 효과
+
+                    // 색상 설정
+                    vec3 inkColor = vec3(0.1, 0.1, 0.1); // 먹물 색상
+                    vec3 foamColor = vec3(0.7, 0.7, 0.7); // 물 튀김 색상
+
+                    // 물 튀김 효과
+                    float foam = smoothstep(0.05, 0.1, wave - 0.05) * 0.2; // 물 튀김 높이 조정
+
+                    // 최종 색상 계산
+                    vec3 color = mix(inkColor, foamColor, foam);
+                    color *= rippleEffect; // 리플 효과 적용
+                    gl_FragColor = vec4(color, 1.0);
+                }
+            `
+        };
+
+        // 파도 배경 생성
+        const planeGeometry = new THREE.PlaneGeometry(16, 9); // 화면 비율에 맞춰 크기 조정
+        const planeMaterial = new THREE.ShaderMaterial({
+            uniforms: waveShader.uniforms,
+            vertexShader: waveShader.vertexShader,
+            fragmentShader: waveShader.fragmentShader
+        });
+
+        const wavePlane = new THREE.Mesh(planeGeometry, planeMaterial);
+        wavePlane.position.z = -1; // 카메라 뒤에 위치
+        scene.add(wavePlane);
+
+        // 카메라 위치 조정
+        camera.position.z = 1;
+
+        // 애니메이션 루프
+        function animate() {
+            requestAnimationFrame(animate);
+            waveShader.uniforms.time.value += 0.5; // 시간 값을 증가시켜 애니메이션 효과 추가
+            waveShader.uniforms.rippleRadius.value = Math.max(0, waveShader.uniforms.rippleRadius.value - 0.05); // 리플 반경 감소
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // 클릭 이벤트 리스너
+        window.addEventListener('click', (event) => {
+            // 마우스 위치를 정 normalized device coordinates (-1 to +1)으로 변환
+            const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            // 클릭 위치 설정
+            waveShader.uniforms.clickPosition.value.set(mouseX, mouseY);
+            waveShader.uniforms.rippleRadius.value = 0.5; // 클릭 시 리플 반경 초기화
+
+            // 1초 후 index.html로 이동
+            setTimeout(() => {
+                window.location.href = 'index.html'; // 1초 후 index.html로 이동
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

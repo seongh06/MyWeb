@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "EC2 서버에서 Chrome 시작",
+            "url": "http://54.153.153.165",  // EC2 인스턴스의 퍼블릭 IP 주소
+            "webRoot": "${workspaceFolder}"
+        }
+    ]
+}

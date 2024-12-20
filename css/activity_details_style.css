@@ -1,0 +1,89 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #1a1a1a; /* 어두운 배경 색상 */
+    color: silver; /* 텍스트 색상 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh; /* 화면 전체 높이 */
+}
+header {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+img.logo {
+    max-width: 300px; /* 로고 크기 조정 */
+}
+
+.container {
+    width: 60%; /* 전체 너비의 60% */
+    text-align: center; /* 가운데 정렬 */
+}
+
+.header {
+    width: 100%; /* 전체 너비 */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* 정 가운데 정렬 */
+    padding: 20px;
+    margin-top: 100px;
+}
+
+.header img {
+    max-width: 50px; /* 로고 최대 너비 */
+    margin-right: 20px; /* 로고와 제목 간격 */
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    color: white; /* 제목 색상 */
+}
+
+.duration {
+    font-size: 18px;
+    color: gray; /* 기간 색상 */
+    margin-left: 20px; /* 제목과 기간 간격 */
+}
+
+.image-container {
+    position: relative;
+    width: 100%; /* 전체 너비 */
+    overflow: hidden;
+    margin-top: 20px; /* 헤더 아래 여백 */
+}
+
+.image-container img {
+    width: 100%; /* 너비 100% */
+    height: auto; /* 높이는 이미지 비율에 따라 자동 조정 */
+    display: block; /* 이미지 아래의 여백 제거 */
+}
+
+.summary {
+    font-size: 20px;
+    color: silver; /* 요약 색상 */
+    text-align: left; /* 왼쪽 정렬 */
+}
+
+.details {
+    padding: 20px;
+    font-size: 16px;
+    color: silver; /* 상세정보 색상 */
+    margin-top: 10px; /* 상단 여백 */
+    text-align: left; /* 왼쪽 정렬 */
+}
+.link {
+    color: silver; /* 링크 색상을 텍스트 색상과 동일하게 설정 */
+    text-decoration: none; /* 기본 링크 밑줄 제거 */
+    display: block; /* 블록 요소로 설정하여 margin-top 적용 */
+    text-align: center;
+    margin-top: 100px; /* 마진 탑 설정 */
+}
+
+.link:hover {
+    text-decoration: underline; /* 마우스 오버 시 밑줄 추가 */
+}
